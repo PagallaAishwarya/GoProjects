@@ -1,10 +1,12 @@
 package models
 
 import (
-	"time"
+	"BookProject/pkg/config"
 	"github.com/jinzhu/gorm"
+	"time"
 )
 
+var db *gorm.DB
 // Model definition
 type Model struct {
 	ID        uint `gorm:"primary_key"`
@@ -36,6 +38,18 @@ type Books struct {
 	Content string
 }
 
+func  GetAllBooks() []Books {
+	var Books []Books
+	db.Find(&Books)
+	return Books
+}
+
+//CreateBook -creats a new book record
+func (b *Books) CreateBook() *Books {
+	db.NewRecord(b)
+	db.Create(&b)
+	return b
+}
 // TableName Roles table name to be `user_accounts`
 func (Roles) TableName() string {
 	return "user_roles"
@@ -49,4 +63,11 @@ func (Accounts) TableName() string {
 // TableName Accounts User table name to be `user_accounts`
 func (Books) TableName() string {
 	return "books"
+}
+func init() {
+	config.DBConnector()
+	db = config.GetDB()
+	db.AutoMigrate(&Roles{})
+	db.AutoMigrate(&Accounts{})
+	db.AutoMigrate(&Books{})
 }
